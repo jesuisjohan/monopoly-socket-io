@@ -9,6 +9,7 @@ const { default: EVENTS } = require('./constants/events');
 const { default: COLORS } = require('./constants/colors');
 const { default: TILE_TYPES } = require('./constants/tileTypes');
 const { default: NUMBER_OF_PROPS } = require('./constants/props');
+const { default: MOVE_TO_TILE } = require('./constants/moveToTile');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -265,7 +266,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
       case TILE_TYPES.GO_JAIL:
         state.players[socket.id].isJail = true;
         state.players[socket.id].jailRounds = 0;
-        state.players[socket.id].currentTile = 10;
+        state.players[socket.id].currentTile = MOVE_TO_TILE.IN_JAIL;
         sendToLog(`${playerName} was sent to jail for tax fraud.`);
         nextTurn();
         break;
@@ -297,9 +298,9 @@ io.on(EVENTS.CONNECTION, (socket) => {
         const chestCard = chestCards[randomNumber];
         state.players[socket.id].accountBalance += chestCard.reward;
         state.players[socket.id].accountBalance -= chestCard.penalty;
-        if (chestCard.moveToTile > 0) state.players[socket.id].currentTile = chestCard.moveToTile;
+        if (chestCard.moveToTile > MOVE_TO_TILE.LOTTO) state.players[socket.id].currentTile = chestCard.moveToTile;
 
-        if (chestCard.moveToTile === 10) {
+        if (chestCard.moveToTile === MOVE_TO_TILE.IN_JAIL) {
           state.players[socket.id].isJail = true;
         }
         sendToLog(`${playerName}: ${chestCard.message}`);
@@ -311,9 +312,9 @@ io.on(EVENTS.CONNECTION, (socket) => {
         const chestCard = chestCards[randomNumber];
         state.players[socket.id].accountBalance += chestCard.reward;
         state.players[socket.id].accountBalance -= chestCard.penalty;
-        if (chestCard.moveToTile > 0) state.players[socket.id].currentTile = chestCard.moveToTile;
+        if (chestCard.moveToTile > MOVE_TO_TILE.LOTTO) state.players[socket.id].currentTile = chestCard.moveToTile;
 
-        if (chestCard.moveToTile === 10) {
+        if (chestCard.moveToTile === MOVE_TO_TILE.IN_JAIL) {
           state.players[socket.id].isJail = true;
         }
         sendToLog(`${playerName}: ${chestCard.message}`);
