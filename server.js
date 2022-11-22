@@ -8,6 +8,7 @@ const chestCards = require('./chestCards');
 const { default: EVENTS } = require('./constants/events');
 const { default: COLORS } = require('./constants/colors');
 const { default: TILE_TYPES } = require('./constants/tileTypes');
+const { default: NUMBER_OF_PROPS } = require('./constants/props');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -82,7 +83,7 @@ const checkBalance = (noNextTurn) => {
       }
       state.boardState.players = Object.keys(state.players);
       if (noNextTurn) nextTurn();
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < NUMBER_OF_PROPS; i++) {
         if (state.boardState.ownedProps[i] && state.boardState.ownedProps[i].id === e) {
           delete state.boardState.ownedProps[i];
         }
@@ -169,10 +170,10 @@ io.on(EVENTS.CONNECTION, (socket) => {
   socket.on(EVENTS.MAKE_MOVE, (num) => {
     const { id } = socket;
     const cTile = state.players[id].currentTile;
-    if (cTile + num < 40) {
+    if (cTile + num < NUMBER_OF_PROPS) {
       state.players[id].currentTile = cTile + num;
     } else {
-      const left = 40 - cTile;
+      const left = NUMBER_OF_PROPS - cTile;
       const more = num - left;
       state.players[id].currentTile = more;
       state.players[id].accountBalance += 200;
@@ -450,7 +451,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
       colors.push(state.players[socket.id].color);
       sendToLog(`${playerName} left the game.`);
       delete state.players[socket.id];
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < NUMBER_OF_PROPS; i++) {
         if (state.boardState.ownedProps[i] && state.boardState.ownedProps[i].id === socket.id) {
           delete state.boardState.ownedProps[i];
         }
