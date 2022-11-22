@@ -10,6 +10,7 @@ const { default: COLORS } = require('./constants/colors');
 const { default: TILE_TYPES } = require('./constants/tileTypes');
 const { default: NUMBER_OF_PROPS } = require('./constants/props');
 const { default: MOVE_TO_TILE } = require('./constants/moveToTile');
+const { default: RAIL_ROADS } = require('./constants/railRoads');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -214,7 +215,6 @@ io.on(EVENTS.CONNECTION, (socket) => {
   socket.on(EVENTS.PLAYER_HAS_MOVED, (bool) => {
     state.boardState.currentPlayer.hasMoved = bool;
     const { currentTile } = state.players[socket.id];
-    const railRoadArray = [5, 15, 25, 35];
     const { dice1, dice2 } = state.boardState.diceValue;
     const diceResult = dice1[1] + dice2[1];
     const playerName = state.players[socket.id].name;
@@ -240,7 +240,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
       case TILE_TYPES.RAIL_ROAD: {
         checkOwned(socket.id, currentTile, () => {
           let ownedRailroads = 0;
-          railRoadArray.forEach((tileNumb) => {
+          RAIL_ROADS.forEach((tileNumb) => {
             if (
               state.boardState.ownedProps[tileNumb] &&
               state.boardState.ownedProps[tileNumb].id === state.boardState.ownedProps[currentTile].id
