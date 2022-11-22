@@ -65,7 +65,7 @@ const checkBalance = (noNextTurn) => {
         color: state.players[e].color,
       };
       sendToLog(
-        `<span class="bancrupt-message">${state.players[e].name} went bancrupt and can no longer play the game, all his properties were put on sale again!</span>`
+        `<span class="bankrupt-message">${state.players[e].name} went bankrupt and can no longer play the game, all his properties were put on sale again!</span>`
       );
       delete state.players[e];
       if (e === state.boardState.currentPlayer.id) {
@@ -176,7 +176,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
       const more = num - left;
       state.players[id].currentTile = more;
       state.players[id].accountBalance += 200;
-      sendToLog(`${state.players[socket.id].name} has passed start and recieved $200M`);
+      sendToLog(`${state.players[socket.id].name} has passed start and received $200M`);
     }
     io.emit(EVENTS.UPDATE, state);
   });
@@ -269,7 +269,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
         nextTurn();
         break;
       case TILE_TYPES.JAIL:
-        sendToLog(`${playerName}, dont't worry! You're just visiting.`);
+        sendToLog(`${playerName}, don't worry! You're just visiting.`);
         nextTurn();
         break;
       case TILE_TYPES.COMPANY: {
