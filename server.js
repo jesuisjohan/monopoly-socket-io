@@ -5,6 +5,7 @@ const path = require('path');
 const socketIO = require('socket.io');
 const tileState = require('./tileState');
 const chestCards = require('./chestCards');
+const { default: EVENTS } = require('./events');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -131,11 +132,11 @@ const colors = ['black', 'white', 'orange', 'red', 'blue', 'green', 'yellow'];
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // On client connection
-io.on('connection', (socket) => {
+io.on(EVENTS.CONNECTION, (socket) => {
   socket.emit(EVENTS.UPDATE, state);
 
   // when a new player enters
-  socket.on('new player', (newName) => {
+  socket.on(EVENTS.NEW_PLAYER, (newName) => {
     const { id } = socket;
     if (!state.boardState.gameStarted) {
       state.players[id] = {
@@ -155,7 +156,7 @@ io.on('connection', (socket) => {
   });
 
   // start game
-  socket.on('start game', (newName) => {
+  socket.on(EVENTS.START_GAME, (newName) => {
     state.boardState.gameStarted = true;
     sendToLog('The Game has started!!! Good luck players!');
     nextTurn();
@@ -414,14 +415,14 @@ io.on('connection', (socket) => {
     const buyerName = state.players[playerId].name;
     const tileOwner = state.boardState.ownedProps[item.tileID].id;
     const tileName = tileState[tileID].streetName;
-    io.sockets.to(tileOwner).emit('offer on prop', { ...item, buyerName, tileName });
+    io.sockets.to(tileOwner).emit(EVENTS.OFFER_ON_PROP, { ...item, buyerName, tileName });
   });
 
   socket.on(EVENTS.DECLINE_OFFER, (offer) => {
     const { playerId, tileID, price, tileName } = offer;
     const ownerID = state.boardState.ownedProps[tileID].id;
     const ownerName = state.players[ownerID].name;
-    io.sockets.to(playerId).emit('offer declined', { tileName, price, ownerName });
+    io.sockets.to(playerId).emit(EVENTS.OFFER_DECLINED, { tileName, price, ownerName });
   });
 
   socket.on(EVENTS.ACCEPT_OFFER, (offer) => {
@@ -433,7 +434,7 @@ io.on('connection', (socket) => {
     state.boardState.ownedProps[tileID].id = playerId;
     state.boardState.ownedProps[tileID].color = state.players[playerId].color;
     sendToLog(`${ownerName} has privately bought ${tileName} from ${ownerName} from $${price}M`);
-    io.sockets.to(playerId).emit('offer accepted', { tileName, price, ownerName });
+    io.sockets.to(playerId).emit(EVENTS.OFFER_ACCEPTED, { tileName, price, ownerName });
 
     if (state.boardState.openMarket[tileID]) delete state.boardState.openMarket[tileID];
     checkBalance(true);
@@ -441,7 +442,7 @@ io.on('connection', (socket) => {
   });
 
   // when player disconnects
-  socket.on('disconnect', () => {
+  socket.on(EVENTS.DISCONNECT, () => {
     if (state.players[socket.id]) {
       const playerName = state.players[socket.id].name;
       colors.push(state.players[socket.id].color);

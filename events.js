@@ -15,6 +15,11 @@ const EVENTS = {
   START_GAME: "start game",
   REMOVE_SALE: "remove sale",
   UPDATE: "update",
+  OFFER_ON_PROP: "offer on prop",
+  OFFER_DECLINED: "offer declined",
+  OFFER_ACCEPTED: "offer accepted",
+  DISCONNECT: "disconnect",
+  CONNECTION: 'connection'
 };
 
 export default EVENTS;
