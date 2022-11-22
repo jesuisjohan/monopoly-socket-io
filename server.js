@@ -5,7 +5,8 @@ const path = require('path');
 const socketIO = require('socket.io');
 const tileState = require('./tileState');
 const chestCards = require('./chestCards');
-const { default: EVENTS } = require('./events');
+const { default: EVENTS } = require('./constants/events');
+const { default: COLORS } = require('./constants/colors');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -32,7 +33,7 @@ const state = {
     ownedProps: {
       42: {
         id: '',
-        color: 'blue',
+        color: COLORS.BLUE,
       },
     },
     openMarket: {},
@@ -125,7 +126,7 @@ const checkOwned = (playerId, currentTile, callback) => {
 };
 
 // color array for players
-const colors = ['black', 'white', 'orange', 'red', 'blue', 'green', 'yellow'];
+const colors = Object.values({...COLORS});
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////SOCKET FUNCTIONS////////////////////////;/////////////////////////////////////
