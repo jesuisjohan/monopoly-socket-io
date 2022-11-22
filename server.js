@@ -7,6 +7,7 @@ const tileState = require('./tileState');
 const chestCards = require('./chestCards');
 const { default: EVENTS } = require('./constants/events');
 const { default: COLORS } = require('./constants/colors');
+const { default: TILE_TYPES } = require('./constants/tileTypes');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -217,7 +218,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
     const playerName = state.players[socket.id].name;
 
     switch (tileState[currentTile].tileType) {
-      case 'normal':
+      case TILE_TYPES.NORMAL:
         checkOwned(socket.id, currentTile, () => {
           const currentTileOwner = state.boardState.ownedProps[currentTile].id;
           state.players[socket.id].accountBalance -= tileState[currentTile].rent;
@@ -229,12 +230,12 @@ io.on(EVENTS.CONNECTION, (socket) => {
           );
         });
         break;
-      case 'expense':
+      case TILE_TYPES.EXPENSE:
         state.players[socket.id].accountBalance -= tileState[currentTile].rent;
         sendToLog(`${playerName} paid ${tileState[currentTile].rent} in taxes.`);
         nextTurn();
         break;
-      case 'railroad': {
+      case TILE_TYPES.RAIL_ROAD: {
         checkOwned(socket.id, currentTile, () => {
           let ownedRailroads = 0;
           railRoadArray.forEach((tileNumb) => {
@@ -260,18 +261,18 @@ io.on(EVENTS.CONNECTION, (socket) => {
         });
         break;
       }
-      case 'gojail':
+      case TILE_TYPES.GO_JAIL:
         state.players[socket.id].isJail = true;
         state.players[socket.id].jailRounds = 0;
         state.players[socket.id].currentTile = 10;
         sendToLog(`${playerName} was sent to jail for tax fraud.`);
         nextTurn();
         break;
-      case 'jail':
+      case TILE_TYPES.JAIL:
         sendToLog(`${playerName}, dont't worry! You're just visiting.`);
         nextTurn();
         break;
-      case 'company': {
+      case TILE_TYPES.COMPANY: {
         checkOwned(socket.id, currentTile, () => {
           let priceToPay = 0;
           if (
@@ -290,7 +291,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
         });
         break;
       }
-      case 'chance': {
+      case TILE_TYPES.CHANCE: {
         const randomNumber = Math.floor(Math.random() * chestCards.length);
         const chestCard = chestCards[randomNumber];
         state.players[socket.id].accountBalance += chestCard.reward;
@@ -304,7 +305,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
         nextTurn();
         break;
       }
-      case 'chest': {
+      case TILE_TYPES.CHEST: {
         const randomNumber = Math.floor(Math.random() * chestCards.length);
         const chestCard = chestCards[randomNumber];
         state.players[socket.id].accountBalance += chestCard.reward;
