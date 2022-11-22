@@ -4,26 +4,27 @@ import React, {
 import io from 'socket.io-client';
 import Board from './components/Board';
 import stateContext from './internal';
+import EVENTS from '../../events';
 
 const url = window.location.hostname === 'localhost' ? 'http://localhost:8080' : window.location.origin;
 
 const socket = io(url);
 const socketFunctions = {
-  makeMove: num => socket.emit('makeMove', num),
-  newPlayer: name => socket.emit('new player', name),
-  toggleHasMoved: bool => socket.emit('player has moved', bool),
-  endTurn: () => socket.emit('end turn', ''),
-  sendDice: dices => socket.emit('send dice', dices),
-  inJail: dices => socket.emit('in jail', dices),
-  buyProperty: () => socket.emit('buy property', true),
-  sendChat: message => socket.emit('send chat', message),
-  putOpenMarket: saleInfo => socket.emit('put on open market', saleInfo),
-  makeOffer: saleInfo => socket.emit('make offer', saleInfo),
-  acceptOffer: offer => socket.emit('accept offer', offer),
-  declineOffer: offer => socket.emit('decline offer', offer),
-  makeSale: item => socket.emit('make sale', item),
-  startGame: () => socket.emit('start game', ''),
-  removeSale: item => socket.emit('remove sale', item),
+  makeMove: num => socket.emit(EVENTS.MAKE_MOVE, num),
+  newPlayer: name => socket.emit(EVENTS.NEW_PLAYER, name),
+  toggleHasMoved: bool => socket.emit(EVENTS.PLAYER_HAS_MOVED, bool),
+  endTurn: () => socket.emit(EVENTS.END_TURN, ''),
+  sendDice: dices => socket.emit(EVENTS.SEND_DICE, dices),
+  inJail: dices => socket.emit(EVENTS.IN_JAIL, dices),
+  buyProperty: () => socket.emit(EVENTS.BUY_PROPERTY, true),
+  sendChat: message => socket.emit(EVENTS.SEND_CHAT, message),
+  putOpenMarket: saleInfo => socket.emit(EVENTS.PUT_ON_OPEN_MARKET, saleInfo),
+  makeOffer: saleInfo => socket.emit(EVENTS.MAKE_OFFER, saleInfo),
+  acceptOffer: offer => socket.emit(EVENTS.ACCEPT_OFFER, offer),
+  declineOffer: offer => socket.emit(EVENTS.DECLINE_OFFER, offer),
+  makeSale: item => socket.emit(EVENTS.MAKE_SALE, item),
+  startGame: () => socket.emit(EVENTS.START_GAME, ''),
+  removeSale: item => socket.emit(EVENTS.REMOVE_SALE, item),
 };
 
 const initialState = {

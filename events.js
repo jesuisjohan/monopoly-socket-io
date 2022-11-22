@@ -4,7 +4,7 @@ const EVENTS = {
   PLAYER_HAS_MOVED: "player has moved",
   END_TURN: "end turn",
   SEND_DICE: "send dice",
-  END_JAIL: "in jail",
+  IN_JAIL: "in jail",
   BUY_PROPERTY: "buy property",
   SEND_CHAT: "send chat",
   PUT_ON_OPEN_MARKET: "put on open market",

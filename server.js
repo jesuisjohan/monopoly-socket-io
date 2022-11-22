@@ -163,7 +163,7 @@ io.on('connection', (socket) => {
   });
 
   // move when dice is rolled
-  socket.on('makeMove', (num) => {
+  socket.on(EVENTS.MAKE_MOVE, (num) => {
     const { id } = socket;
     const cTile = state.players[id].currentTile;
     if (cTile + num < 40) {
@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
   });
 
   // send chat
-  socket.on('send chat', (message) => {
+  socket.on(EVENTS.SEND_CHAT, (message) => {
     if (state.boardState.players.includes(socket.id)) {
       sendToLog(
         `<span style="color:${state.players[socket.id].color}" class="log-chat-name" >${
@@ -199,14 +199,14 @@ io.on('connection', (socket) => {
   });
 
   // next turn
-  socket.on('end turn', () => {
+  socket.on(EVENTS.END_TURN, () => {
     nextTurn();
     state.boardState.currentPlayer.hasMoved = false; // move to function?
     io.emit('update', state);
   });
 
   // hasMoved
-  socket.on('player has moved', (bool) => {
+  socket.on(EVENTS.PLAYER_HAS_MOVED, (bool) => {
     state.boardState.currentPlayer.hasMoved = bool;
     const { currentTile } = state.players[socket.id];
     const railRoadArray = [5, 15, 25, 35];
@@ -324,7 +324,7 @@ io.on('connection', (socket) => {
   });
 
   // buy property
-  socket.on('buy property', () => {
+  socket.on(EVENTS.BUY_PROPERTY, () => {
     const { accountBalance } = state.players[socket.id];
     const { currentTile } = state.players[socket.id];
     const playerName = state.players[socket.id].name;
@@ -339,7 +339,7 @@ io.on('connection', (socket) => {
   });
 
   // update dice state
-  socket.on('send dice', (dices) => {
+  socket.on(EVENTS.SEND_DICE, (dices) => {
     state.boardState.diceValue = dices;
     const diceResult = dices.dice1[1] + dices.dice2[1];
     const playerName = state.players[socket.id].name;
@@ -347,7 +347,7 @@ io.on('connection', (socket) => {
     io.emit('update', state);
   });
 
-  socket.on('in jail', (dices) => {
+  socket.on(EVENTS.IN_JAIL, (dices) => {
     const { jailRounds } = state.players[socket.id];
     const { currentTile } = state.players[socket.id];
     const playerName = state.players[socket.id].name;
@@ -372,7 +372,7 @@ io.on('connection', (socket) => {
     io.emit('update', state);
   });
 
-  socket.on('put on open market', (saleInfo) => {
+  socket.on(EVENTS.PUT_ON_OPEN_MARKET, (saleInfo) => {
     const { tileID, playerId, price } = saleInfo;
     const tileName = tileState[tileID].streetName;
     const sellerName = state.players[playerId].name;
@@ -386,7 +386,7 @@ io.on('connection', (socket) => {
     io.emit('update', state);
   });
 
-  socket.on('remove sale', (item) => {
+  socket.on(EVENTS.REMOVE_SALE, (item) => {
     const { tileName } = state.boardState.openMarket[item];
     delete state.boardState.openMarket[item];
     const playerName = state.players[socket.id].name;
@@ -394,7 +394,7 @@ io.on('connection', (socket) => {
     io.emit('update', state);
   });
 
-  socket.on('make sale', (item) => {
+  socket.on(EVENTS.MAKE_SALE, (item) => {
     const { seller } = state.boardState.openMarket[item];
     const { price } = state.boardState.openMarket[item];
     const { sellerName } = state.boardState.openMarket[item];
@@ -409,7 +409,7 @@ io.on('connection', (socket) => {
     checkBalance(true);
     io.emit('update', state);
   });
-  socket.on('make offer', (item) => {
+  socket.on(EVENTS.MAKE_OFFER, (item) => {
     const { playerId, tileID } = item;
     const buyerName = state.players[playerId].name;
     const tileOwner = state.boardState.ownedProps[item.tileID].id;
@@ -417,14 +417,14 @@ io.on('connection', (socket) => {
     io.sockets.to(tileOwner).emit('offer on prop', { ...item, buyerName, tileName });
   });
 
-  socket.on('decline offer', (offer) => {
+  socket.on(EVENTS.DECLINE_OFFER, (offer) => {
     const { playerId, tileID, price, tileName } = offer;
     const ownerID = state.boardState.ownedProps[tileID].id;
     const ownerName = state.players[ownerID].name;
     io.sockets.to(playerId).emit('offer declined', { tileName, price, ownerName });
   });
 
-  socket.on('accept offer', (offer) => {
+  socket.on(EVENTS.ACCEPT_OFFER, (offer) => {
     const { playerId, tileID, price, tileName } = offer;
     const ownerID = state.boardState.ownedProps[tileID].id;
     const ownerName = state.players[ownerID].name;
