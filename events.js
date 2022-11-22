@@ -14,6 +14,7 @@ const EVENTS = {
   MAKE_SALE: "make sale",
   START_GAME: "start game",
   REMOVE_SALE: "remove sale",
+  UPDATE: "update",
 };
 
 export default EVENTS;

@@ -132,7 +132,7 @@ const colors = ['black', 'white', 'orange', 'red', 'blue', 'green', 'yellow'];
 
 // On client connection
 io.on('connection', (socket) => {
-  socket.emit('update', state);
+  socket.emit(EVENTS.UPDATE, state);
 
   // when a new player enters
   socket.on('new player', (newName) => {
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
     } else {
       sendToLog(`${newName}, game has already started, you are not able to join!`);
     }
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // start game
@@ -159,7 +159,7 @@ io.on('connection', (socket) => {
     state.boardState.gameStarted = true;
     sendToLog('The Game has started!!! Good luck players!');
     nextTurn();
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // move when dice is rolled
@@ -175,7 +175,7 @@ io.on('connection', (socket) => {
       state.players[id].accountBalance += 200;
       sendToLog(`${state.players[socket.id].name} has passed start and recieved $200M`);
     }
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // send chat
@@ -195,14 +195,14 @@ io.on('connection', (socket) => {
     } else {
       sendToLog(`<span style="color:grey" class="log-chat-name">Spectator</span> says: ${message}`);
     }
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // next turn
   socket.on(EVENTS.END_TURN, () => {
     nextTurn();
     state.boardState.currentPlayer.hasMoved = false; // move to function?
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // hasMoved
@@ -320,7 +320,7 @@ io.on('connection', (socket) => {
         nextTurn();
         break;
     }
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // buy property
@@ -335,7 +335,7 @@ io.on('connection', (socket) => {
     };
     sendToLog(`${playerName} bought a property!`);
     nextTurn();
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // update dice state
@@ -344,7 +344,7 @@ io.on('connection', (socket) => {
     const diceResult = dices.dice1[1] + dices.dice2[1];
     const playerName = state.players[socket.id].name;
     sendToLog(`${playerName} rolled ${diceResult}!`);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   socket.on(EVENTS.IN_JAIL, (dices) => {
@@ -369,7 +369,7 @@ io.on('connection', (socket) => {
     }
     state.boardState.diceValue = dices;
     nextTurn();
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   socket.on(EVENTS.PUT_ON_OPEN_MARKET, (saleInfo) => {
@@ -383,7 +383,7 @@ io.on('connection', (socket) => {
       tileName,
     };
     console.log(state.boardState.openMarket);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   socket.on(EVENTS.REMOVE_SALE, (item) => {
@@ -391,7 +391,7 @@ io.on('connection', (socket) => {
     delete state.boardState.openMarket[item];
     const playerName = state.players[socket.id].name;
     sendToLog(`${playerName} removed ${tileName} from the open market.`);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   socket.on(EVENTS.MAKE_SALE, (item) => {
@@ -407,7 +407,7 @@ io.on('connection', (socket) => {
     delete state.boardState.openMarket[item];
     sendToLog(`${buyerName} has bought ${tileName} from ${sellerName}`);
     checkBalance(true);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
   socket.on(EVENTS.MAKE_OFFER, (item) => {
     const { playerId, tileID } = item;
@@ -437,7 +437,7 @@ io.on('connection', (socket) => {
 
     if (state.boardState.openMarket[tileID]) delete state.boardState.openMarket[tileID];
     checkBalance(true);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 
   // when player disconnects
@@ -472,7 +472,7 @@ io.on('connection', (socket) => {
       state.boardState.gameStarted = false;
     }
     console.log(colors);
-    io.emit('update', state);
+    io.emit(EVENTS.UPDATE, state);
   });
 });
 
