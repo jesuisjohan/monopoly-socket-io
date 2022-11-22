@@ -6,6 +6,7 @@ import MarketPlace from './MarketPlace';
 import stateContext from '../internal';
 import tileNames from './BoardInitState';
 import sellPromptContext from '../sellPromptContext';
+import EVENTS from '../../../constants/events';
 
 export default function Dashboard() {
   const {
@@ -29,16 +30,16 @@ export default function Dashboard() {
   }, [offers]);
 
   useEffect(() => {
-    socket.on('offer on prop', info => {
+    socket.on(EVENTS.OFFER_ON_PROP, info => {
       setOffers([...offers, { ...info, timer: 20 }]);
     });
 
-    socket.on('offer declined', info => {
+    socket.on(EVENTS.OFFER_DECLINED, info => {
       const { tileName, price, ownerName } = info;
       alert.show(`${ownerName} declined your offer to buy ${tileName} for $${price}M`);
     });
 
-    socket.on('offer accepted', info => {
+    socket.on(EVENTS.OFFER_ACCEPTED, info => {
       const { tileName, price, ownerName } = info;
       alert.show(`${ownerName} accepted your offer to buy ${tileName} for $${price}M`);
     });
