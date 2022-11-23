@@ -5,12 +5,13 @@ const path = require('path');
 const socketIO = require('socket.io');
 const tileState = require('./tileState');
 const chestCards = require('./chestCards');
-const { default: EVENTS } = require('./constants/events');
-const { default: COLORS } = require('./constants/colors');
-const { default: TILE_TYPES } = require('./constants/tileTypes');
-const { default: NUMBER_OF_PROPS } = require('./constants/props');
-const { default: MOVE_TO_TILE } = require('./constants/moveToTile');
-const { default: RAIL_ROADS } = require('./constants/railRoads');
+
+const EVENTS = require('./client/src/constants/events');
+const COLORS = require('./client/src/constants/colors');
+const TILE_TYPES = require('./client/src/constants/tileTypes');
+const NUMBER_OF_PROPS = require('./client/src/constants/props');
+const MOVE_TO_TILE = require('./client/src/constants/moveToTile');
+const RAIL_ROADS = require('./client/src/constants/railRoads');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {

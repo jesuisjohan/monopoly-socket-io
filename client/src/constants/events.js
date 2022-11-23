@@ -19,7 +19,7 @@ const EVENTS = {
   OFFER_DECLINED: "offer declined",
   OFFER_ACCEPTED: "offer accepted",
   DISCONNECT: "disconnect",
-  CONNECTION: 'connection'
+  CONNECTION: "connection",
 };
 
-export default EVENTS;
+module.exports = EVENTS

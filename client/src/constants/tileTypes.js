@@ -9,4 +9,4 @@ const TILE_TYPES = {
   CHEST: "chest",
 };
 
-export default TILE_TYPES;
+module.exports = TILE_TYPES

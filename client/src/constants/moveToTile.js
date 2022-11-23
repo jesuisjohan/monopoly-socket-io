@@ -3,4 +3,4 @@ const MOVE_TO_TILE = {
     LOTTO: 0
 }
 
-export default MOVE_TO_TILE
+module.exports = MOVE_TO_TILE

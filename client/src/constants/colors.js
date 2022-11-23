@@ -9,4 +9,4 @@ const COLORS = {
   YELLOW: "yellow",
 };
 
-export default COLORS;
+module.exports = COLORS

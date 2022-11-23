@@ -6,7 +6,7 @@ import MarketPlace from './MarketPlace';
 import stateContext from '../internal';
 import tileNames from './BoardInitState';
 import sellPromptContext from '../sellPromptContext';
-import EVENTS from '../../../constants/events';
+import EVENTS from '../constants/events';
 
 export default function Dashboard() {
   const {
