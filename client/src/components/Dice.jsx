@@ -36,7 +36,6 @@ export default function Dice() {
       socketFunctions.inJail({ dice1, dice2 });
     } else {
       btnRef.current.disabled = true;
-      // setDice({ dice1, dice2 });
       socketFunctions.sendDice({ dice1, dice2 });
       const result = dice1[1] + dice2[1];
       for (let i = 0; i < result; i++) {
