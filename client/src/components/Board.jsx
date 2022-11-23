@@ -8,13 +8,13 @@ import { v4 as uuidv4 } from 'uuid';
 import './style/Board.css';
 import stateContext from '../internal';
 import Tile from './Tile';
-import initialState from './BoardInitState';
+import initialState from '../constants/BoardInitState';
 import Dice from './Dice';
 import Log from './Log';
 import Dashboard from './Dashboard';
 import cardFlipContext from '../cardFlipContext';
 import sellPromptContext from '../sellPromptContext';
-import backOfCards from './backOfCards';
+import backOfCards from '../constants/backOfCards';
 
 const reducer = (state, action) => {
   switch (action.type) {

@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import './style/Dashboard.css';
 import MarketPlace from './MarketPlace';
 import stateContext from '../internal';
-import tileNames from './BoardInitState';
+import tileNames from '../constants/BoardInitState';
 import sellPromptContext from '../sellPromptContext';
 import EVENTS from '../constants/events';
 
