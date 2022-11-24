@@ -372,8 +372,8 @@
 }
 
 .player__token {
-  width: 2vmin;
-  height: 2vmin;
+  width: 3vmin;
+  height: 3vmin;
   border: 1px solid black;
   border-radius: 100%;
 }
