@@ -164,7 +164,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
   // start game
   socket.on(EVENTS.START_GAME, (newName) => {
     state.boardState.gameStarted = true;
-    sendToLog('The Game has started!!! Good luck players!');
+    sendToLog('Monopoly Socket IO has started!!! Good luck to you!');
     nextTurn();
     io.emit(EVENTS.UPDATE, state);
   });
