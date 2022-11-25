@@ -1,21 +1,22 @@
 .center__room {
-position: absolute;
-left: 50%;
-display: flex;
-flex-direction: column;
-width: 50%;
-height: 35%;
-border-bottom: 1px dashed black;
+  position: absolute;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 35%;
 }
 
 .center__log {
   flex: 1;
-  margin: 1vmin;
   text-align: left;
+  margin: 15px 0 0 0; 
   line-height: 2vmin;
   overflow-x: hidden;
   overflow-y: auto;
   overflow-wrap: break-word;
+  padding: 15px;
+  border: 1px #000 solid;
 }
 
 .center__chat {
@@ -49,4 +50,10 @@ border-bottom: 1px dashed black;
   border-radius: 0vmin 0.5vmin 0.5vmin 0vmin;
   background: rgb(255, 255, 255);
   color: black;
+}
+
+.pause-button {
+  max-width: 150px;
+  min-width: 100px;
+  right: 0;
 }

@@ -7,6 +7,7 @@ const TILE_TYPES = {
   COMPANY: "company",
   CHANCE: "chance",
   CHEST: "chest",
+  PARKING: "parking",
 };
 
 module.exports = TILE_TYPES

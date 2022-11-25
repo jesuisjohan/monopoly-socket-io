@@ -20,6 +20,8 @@ const EVENTS = {
   OFFER_ACCEPTED: "offer accepted",
   DISCONNECT: "disconnect",
   CONNECTION: "connection",
+  PAUSE: "pause",
+  UNPAUSE: "unpause",
 };
 
 module.exports = EVENTS

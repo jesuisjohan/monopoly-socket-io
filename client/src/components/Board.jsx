@@ -12,6 +12,7 @@ import initialState from '../constants/BoardInitState';
 import Dice from './Dice';
 import Log from './Log';
 import Dashboard from './Dashboard';
+import PauseMenu from './PauseMenu';
 import cardFlipContext from '../cardFlipContext';
 import sellPromptContext from '../sellPromptContext';
 import backOfCards from '../constants/backOfCards';
@@ -28,7 +29,7 @@ const reducer = (state, action) => {
 
 function Board() {
   const [cardsBack, dispatch] = useReducer(reducer, backOfCards);
-  const { socketFunctions, playerId } = useContext(stateContext);
+  const { socketFunctions, playerId, state } = useContext(stateContext);
 
   const [tiles] = useState(initialState);
   const [openSale, setOpenSale] = useState(false);
@@ -85,8 +86,8 @@ function Board() {
             <Log />
             <Dashboard />
           </section>
-
         </section>
+        {state.boardState.gamePaused && <PauseMenu />}
       </cardFlipContext.Provider>
     </sellPromptContext.Provider>
   );

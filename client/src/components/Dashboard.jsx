@@ -10,7 +10,7 @@ import EVENTS from '../constants/events';
 
 export default function Dashboard() {
   const {
-    socketFunctions, state, playerId, socket,
+    socketFunctions, state, playerId, socket
   } = useContext(stateContext);
   const {
     openSale, setOpenSale, privateSale, setPrivateSale,
@@ -83,7 +83,7 @@ export default function Dashboard() {
                   <h3 className="center__dashboard__player-info__name" style={{ color: state.players[player].color, textShadow: '1px 1px 0 black, 1px -1px 0 grey, -1px 1px 0 black, -1px -1px 0 grey, 1px 0px 0 grey, 0px 1px 0 black, -1px 0px 0 grey, 0px -1px 0 grey' }}>
                     {state.players[player].name}
                   </h3>
-                  <p className="center__dashboard__player-info">{`Account balance: $${state.players[player].accountBalance}M`}</p>
+                  <p className="center__dashboard__player-info">{`$${state.players[player].accountBalance}M`}</p>
                 </section>
               ))
               : 'Loading...'}
@@ -101,6 +101,7 @@ export default function Dashboard() {
           </section>
 
           <section className="center__dashboard__block">
+          <h3 className="center__dashboard__title">Offer:</h3>
             {state.loaded
           && state.boardState.currentPlayer.id === playerId
           && state.turnInfo.canBuyProp
@@ -234,16 +235,7 @@ export default function Dashboard() {
           </section>
           <MarketPlace />
         </section>
-        <section className="center__dashboard--current-player">
-          <h2 className="center__dashboard__player-info">Current player:</h2>
-          <h3 className="center__dashboard__player-info__current">
-            {state.loaded
-              ? (
-                state.players[state.boardState.currentPlayer.id] ? `${state.players[state.boardState.currentPlayer.id].name}` : 'None'
-              )
-              : 'Loading...'}
-          </h3>
-        </section>
+        
       </section>
     </>
   );

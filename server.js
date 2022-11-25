@@ -12,6 +12,7 @@ const TILE_TYPES = require('./client/src/constants/tileTypes');
 const NUMBER_OF_PROPS = require('./client/src/constants/props');
 const MOVE_TO_TILE = require('./client/src/constants/moveToTile');
 const RAIL_ROADS = require('./client/src/constants/railRoads');
+const { disconnect } = require('process');
 
 const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
 if (process.env.NODE_ENV === 'production') {
@@ -27,6 +28,8 @@ if (process.env.NODE_ENV === 'production') {
 const state = {
   boardState: {
     gameStarted: false,
+    gamePaused: false,
+    pausedBy: null,
     players: [],
     finishedPlayers: {},
     currentPlayer: {
@@ -163,9 +166,14 @@ io.on(EVENTS.CONNECTION, (socket) => {
 
   // start game
   socket.on(EVENTS.START_GAME, (newName) => {
-    state.boardState.gameStarted = true;
-    sendToLog('Monopoly Socket IO has started!!! Good luck to you!');
-    nextTurn();
+    if(state.boardState.players.length < 2){
+      sendToLog('Must at least 2 player to play this !');
+    }
+    else {
+      state.boardState.gameStarted = true;
+      sendToLog('Monopoly Socket IO has started!!! Good luck to you!');
+      nextTurn();
+    }
     io.emit(EVENTS.UPDATE, state);
   });
 
@@ -415,6 +423,7 @@ io.on(EVENTS.CONNECTION, (socket) => {
     checkBalance(true);
     io.emit(EVENTS.UPDATE, state);
   });
+
   socket.on(EVENTS.MAKE_OFFER, (item) => {
     const { playerId, tileID } = item;
     const buyerName = state.players[playerId].name;
@@ -469,15 +478,43 @@ io.on(EVENTS.CONNECTION, (socket) => {
     state.boardState.players = Object.keys(state.players);
 
     // remove stuff when no players present
-    if (state.boardState.players.length === 0) {
+    if (state.boardState.players.length < 2) {
+      state.boardState.gameStarted = true;
       state.boardState.logs = [];
       state.boardState.ownedProps = {};
       state.turnInfo = {};
       state.boardState.openMarket = {};
       state.boardState.finishedPlayers = {};
       state.boardState.gameStarted = false;
+      sendToLog("The Game is ended due to no other player");
     }
-    console.log(colors);
+    
+    if (state.boardState.gamePaused) {
+      if (state.boardState.pausedBy.id === socket.id) {
+        state.boardState.gamePaused = false;
+        state.boardState.pausedBy = null;
+      }
+    }
+
+    io.emit(EVENTS.UPDATE, state);
+  });
+
+  //when 1 player pause
+  socket.on(EVENTS.PAUSE, (item) => {
+    const { playerId } = item;
+    const playerName = state.players[socket.id].name;
+    state.boardState.pausedBy = { name: state.players[playerId].name, id: playerId };
+    state.boardState.gamePaused = true;
+    sendToLog(`${playerName} has paused the game`);
+    io.emit(EVENTS.UPDATE, state);
+  });
+
+  //when player unpause
+  socket.on(EVENTS.UNPAUSE, () => {
+    const playerName = state.players[socket.id].name;
+    state.boardState.pausedBy = null;
+    state.boardState.gamePaused = false;
+    sendToLog(`${playerName} has unpaused the game`);
     io.emit(EVENTS.UPDATE, state);
   });
 });

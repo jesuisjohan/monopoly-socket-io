@@ -11,7 +11,8 @@ function Tile({ initState, id, position }) {
   const { cardsBack, dispatch } = useContext(cardFlipContext);
 
   const handleCardClick = () => {
-    // console.log(cardsBack.map((card, index) => index));
+    console.log(cardsBack[id])
+    if(["Chance", "Chest", "Free Parking", "Start", "Jail", "Go to jail"].includes(cardsBack[id].cardName)) return null;
     const cardsFlipped = cardsBack.map((card, index) => {
       if (card.clicked) return { ...card, clicked: false };
       if (index === id) return { ...card, clicked: true };

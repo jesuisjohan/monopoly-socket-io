@@ -25,6 +25,8 @@ const socketFunctions = {
   makeSale: item => socket.emit(EVENTS.MAKE_SALE, item),
   startGame: () => socket.emit(EVENTS.START_GAME, ''),
   removeSale: item => socket.emit(EVENTS.REMOVE_SALE, item),
+  pause: (item) => socket.emit(EVENTS.PAUSE, item),
+  unpause: () => socket.emit(EVENTS.UNPAUSE, ''),
 };
 
 const initialState = {
