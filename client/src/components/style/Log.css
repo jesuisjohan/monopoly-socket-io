@@ -17,6 +17,7 @@
   overflow-wrap: break-word;
   padding: 15px;
   border: 1px #000 solid;
+  border-radius: 10px;
 }
 
 .center__chat {
