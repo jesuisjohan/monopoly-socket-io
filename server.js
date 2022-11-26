@@ -5,6 +5,7 @@ const path = require('path');
 const socketIO = require('socket.io');
 const tileState = require('./tileState');
 const chestCards = require('./chestCards');
+const state = require("./state")
 
 const EVENTS = require('./client/src/constants/events');
 const COLORS = require('./client/src/constants/colors');
@@ -24,32 +25,6 @@ if (process.env.NODE_ENV === 'production') {
 
 // io.emit is to everyone
 // socket.broadcast.emit is to everyone except sender
-
-const state = {
-  boardState: {
-    gameStarted: false,
-    gamePaused: false,
-    pausedBy: null,
-    players: [],
-    finishedPlayers: {},
-    currentPlayer: {
-      id: '',
-      hasMoved: false,
-    },
-    logs: [],
-    diceValue: { dice1: ['⚅', 0], dice2: ['⚅', 0] },
-    ownedProps: {
-      42: {
-        id: '',
-        color: COLORS.BLUE,
-      },
-    },
-    openMarket: {},
-  },
-  players: {},
-  turnInfo: {},
-  loaded: true,
-};
 
 /// ///////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////FUNCTIONS///////////////////////////////////////
