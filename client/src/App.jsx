@@ -12,6 +12,7 @@ const socket = io(url);
 const socketFunctions = {
   makeMove: num => socket.emit(EVENTS.MAKE_MOVE, num),
   newPlayer: name => socket.emit(EVENTS.NEW_PLAYER, name),
+  newAI: name => socket.emit(EVENTS.NEW_AI, name),
   toggleHasMoved: bool => socket.emit(EVENTS.PLAYER_HAS_MOVED, bool),
   endTurn: () => socket.emit(EVENTS.END_TURN, ''),
   sendDice: dices => socket.emit(EVENTS.SEND_DICE, dices),
@@ -49,8 +50,6 @@ const reducer = (state, action) => {
       return state;
   }
 };
-
-// TODO: make into function and export it as function ??
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);

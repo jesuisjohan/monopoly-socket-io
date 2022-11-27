@@ -1,6 +1,7 @@
 const EVENTS = {
   MAKE_MOVE: "makeMove",
   NEW_PLAYER: "new player",
+  NEW_AI: "new ai",
   PLAYER_HAS_MOVED: "player has moved",
   END_TURN: "end turn",
   SEND_DICE: "send dice",

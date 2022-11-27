@@ -101,7 +101,6 @@ export default function Dashboard() {
           </section>
 
           <section className="center__dashboard__block">
-          <h3 className="center__dashboard__title">Offer:</h3>
             {state.loaded
           && state.boardState.currentPlayer.id === playerId
           && state.turnInfo.canBuyProp
@@ -227,9 +226,15 @@ export default function Dashboard() {
               : <></>}
             {state.loaded && !state.boardState.gameStarted
               ? (
-                <button className="button__start-game" type="button" onClick={() => socketFunctions.startGame()}>
-                  Start game
-                </button>
+                <div className="buttons">
+                  <button className="button__start-game" type="button" onClick={() => socketFunctions.startGame()}>
+                    Start game
+                  </button>
+                  <button className="button__start-game" type="button" onClick={() => socketFunctions.newAI()}>
+                    Add AI player
+                  </button>
+                </div>
+                
               )
               : <></>}
           </section>

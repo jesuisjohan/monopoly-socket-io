@@ -24,7 +24,6 @@ export default function Dice() {
         return ['⚄', 5];
       case 6:
         return ['⚅', 6];
-
       default:
         return [];
     }
@@ -35,11 +34,9 @@ export default function Dice() {
     if (state.players[playerId].isJail) {
       socketFunctions.inJail({ dice1, dice2 });
     } else {
-      btnRef.current.disabled = true;
       socketFunctions.sendDice({ dice1, dice2 });
       const result = dice1[1] + dice2[1];
       for (let i = 0; i < result; i++) {
-        // eslint-disable-next-line
         await new Promise(resolve => setTimeout(resolve, 200));
         socketFunctions.makeMove(1);
       }
@@ -53,9 +50,7 @@ export default function Dice() {
       {state.loaded && playerId
         ? (
           <section className="dice">
-            {state.boardState.currentPlayer.id === playerId
-              ? <button ref={btnRef} className="dice__button" type="button" onClick={clickAndRoll}> Roll Dice</button>
-              : <button className="dice__button" type="button" disabled onClick={clickAndRoll}> Roll Dice</button>}
+            {state.boardState.currentPlayer.id && playerId && <button ref={btnRef} className="dice__button" type="button" onClick={clickAndRoll} disabled={state.boardState.currentPlayer.id !== playerId}> Roll Dice </button> }
             <h1 className="dice__dices">
               {dice.dice1[0] + dice.dice2[0]}
             </h1>
