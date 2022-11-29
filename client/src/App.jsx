@@ -6,7 +6,7 @@ import Board from './components/Board';
 import stateContext from './internal';
 import EVENTS from './constants/events';
 
-const url = window.location.hostname === 'localhost' ? 'http://localhost:8080' : window.location.origin;
+const url = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://monosv.suoncha.com/';
 
 const socket = io(url);
 const socketFunctions = {

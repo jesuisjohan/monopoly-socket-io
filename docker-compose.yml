@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+
+  cl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: monocl
+    container_name: cl
+    volumes:
+      - ./:/app
+      - cl:/app/client/node_modules
+      - cl:/app/client/build
+      - node_modules:/app/node_modules
+    ports:
+      - 4004:4004
+    networks:
+      - mono
+
+  sv:
+    build:
+      context: .
+      dockerfile: Server
+    image: monosv
+    container_name: sv
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    ports:
+      - 8080:8080
+    networks:
+      - mono
+    command: yarn start
+  
+networks:
+  mono:
+    driver: bridge
+
+volumes:
+  node_modules:
+  cl:

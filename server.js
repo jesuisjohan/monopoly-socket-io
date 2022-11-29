@@ -18,7 +18,7 @@ const RandomAI = require("./randomAI");
 
 const PORT = process.env.PORT || 8080;
 
-const io = socketIO(server, { cors: { origin: "http://localhost:3000" } });
+const io = socketIO(server, { cors: { origin: '*' } });
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));
   app.get("/", (req, res) => {
