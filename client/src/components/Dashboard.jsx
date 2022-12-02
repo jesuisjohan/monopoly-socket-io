@@ -144,6 +144,7 @@ export default function Dashboard() {
                         onChange={e => setPriceInput(parseInt(e.target.value))}
                         type="number"
                         min="20"
+                        required
                         autoFocus
                       />
                       <button className="open-market__sell-toast__button" type="submit">Put on the open market</button>

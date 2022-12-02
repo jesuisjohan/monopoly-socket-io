@@ -20,6 +20,7 @@
   border: 1px solid #888;
   height: 80%;
   width: 80%;
+  border-radius: 10px;
 }
 
 /* The Close Button */

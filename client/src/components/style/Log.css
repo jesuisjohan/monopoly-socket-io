@@ -17,6 +17,7 @@
   overflow-wrap: break-word;
   padding: 15px;
   border: 1px #000 solid;
+  border-radius: 10px;
 }
 
 .center__chat {
@@ -56,4 +57,11 @@
   max-width: 150px;
   min-width: 100px;
   right: 0;
+  align-self: center;
+  background: white 0.75;
+  color: black;
+  border: 1px solid black;
+  border-radius: 0.5vmin;
+  padding: 0.5vmin 1vmin;
+  font-size: 1.5vmin;
 }

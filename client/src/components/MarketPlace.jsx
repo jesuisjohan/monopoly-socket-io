@@ -44,7 +44,7 @@ const MarketPlace = () => {
                 <div className="dashboard__market-place__buttons">
                   {state.boardState.openMarket[item].seller === playerId
                     ? <p onClick={() => socketFunctions.removeSale(item)} className="dashboard__market-place__icon-x">❌</p>
-                    : <p onClick={() => socketFunctions.makeSale(item)} className="dashboard__market-place__icon-v">✓</p>}
+                    : state.boardState.currentPlayer.id !== playerId ? <></> : <p onClick={() => socketFunctions.makeSale(item)} className="dashboard__market-place__icon-v">✓</p>}
                 </div>
               )
             ))
