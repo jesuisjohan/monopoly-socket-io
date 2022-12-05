@@ -1,39 +1,56 @@
 const express = require("express");
 const app = express();
-const server = require('http').createServer(app);
-const path = require('path');
-const socketIO = require('socket.io');
-const tileState = require('./tileState');
-const chestCards = require('./chestCards');
-const initialState = require("./state")
+const server = require("http").createServer(app);
+const path = require("path");
+const socketIO = require("socket.io");
+const tileState = require("./tileState");
+const chestCards = require("./chestCards");
+
+const EVENTS = require("./client/src/constants/events");
+const COLORS = require("./client/src/constants/colors");
+const TILE_TYPES = require("./client/src/constants/tileTypes");
+const NUMBER_OF_PROPS = require("./client/src/constants/props");
+const MOVE_TO_TILE = require("./client/src/constants/moveToTile");
+const RAIL_ROADS = require("./client/src/constants/railRoads");
+const { disconnect } = require("process");
 const { getDice } = require("./shared/dice");
-const EVENTS = require('./client/src/constants/events');
-const COLORS = require('./client/src/constants/colors');
-const TILE_TYPES = require('./client/src/constants/tileTypes');
-const NUMBER_OF_PROPS = require('./client/src/constants/props');
-const MOVE_TO_TILE = require('./client/src/constants/moveToTile');
-const RAIL_ROADS = require('./client/src/constants/railRoads');
-const RandomAI = require('./randomAI');
+const RandomAI = require("./randomAI");
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
-const io = socketIO(server, { cors: { origin: 'http://localhost:3000' } });
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client', 'build')));
-  app.get('/', (req, res) => {
+const io = socketIO(server, { cors: { origin: "http://localhost:3000" } });
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "build")));
+  app.get("/", (req, res) => {
     res.sendFile(`${__dirname}client/build/index.html`);
   });
 }
 
+const initialState = {
+  boardState: {
+    gameStarted: false,
+    gamePaused: false,
+    pausedBy: null,
+    players: [],
+    finishedPlayers: {},
+    currentPlayer: {
+      id: "",
+      hasMoved: false,
+    },
+    numberOfAI: 0,
+    logs: [],
+    diceValue: { dice1: ["⚅", 0], dice2: ["⚅", 0] },
+    ownedProps: {},
+    openMarket: {},
+  },
+  players: {},
+  turnInfo: {},
+  loaded: true,
+};
+
 const state = { ...initialState };
 
 ////////// FUNCTIONS
-// io.emit is to everyone
-// socket.broadcast.emit is to everyone except sender
-
-/// ///////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////FUNCTIONS///////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////
 
 // current date function for logs
 const date = () =>
@@ -110,10 +127,11 @@ const buyProperty = (playerId, currentTile) => {
   sendToLog(`${state.players[playerId].name} bought a property!`);
 }
 
-// player change // AI Hard Code
+// player change
 const nextTurn = () => {
   // remove player when less than 0 balance
   checkBalance();
+  console.log(state.players[state.boardState.players[0]]);
 
   if (state.boardState.players.length === 1) {
     reset();
@@ -143,7 +161,7 @@ const nextTurn = () => {
   }
 };
 
-// Check if property is owned and pay accordingly // AI Hard Code
+// Check if property is owned and pay accordingly
 const checkOwned = (playerId, currentTile, callback) => {
   if (
     !Object.prototype.hasOwnProperty.call(
@@ -174,23 +192,6 @@ let colors = Object.values({ ...COLORS });
 
 const AIMoveTurn = (state, id) => {
   let currentTile = state.players[id].currentTile;
-
-  const marketPlaceList = Object.keys(state.boardState.openMarket);
-
-  // AI Check the Open Market
-  marketPlaceList.map((item) => {
-    console.log(state.boardState.openMarket, item)
-    const price = state.boardState.openMarket[item].price;
-    if(RandomAI.shouldAcceptOffer(state, state.boardState.openMarket[item].seller, id, item, state.boardState.openMarket[item].price, tileState[item].price)){
-      state.players[state.boardState.openMarket[item].seller].accountBalance += price;
-      state.players[id].accountBalance -= price;
-      state.boardState.ownedProps[item].id = id;
-      state.boardState.ownedProps[item].color = state.players[id].color;
-      delete state.boardState.openMarket[item];
-      sendToLog(`${state.players[id].name} removed ${state.boardState.openMarket[item].tileName} from the open market.`);
-    }
-  })
-
   const dice1 = getDice(Math.floor(Math.random() * 5) + 1);
   const dice2 = getDice(Math.floor(Math.random() * 5) + 1);
   const num = dice1[1] + dice2[1];
@@ -683,32 +684,14 @@ io.on(EVENTS.CONNECTION, (socket) => {
     io.emit(EVENTS.UPDATE, state);
   });
 
-  // AI Hard Code
   socket.on(EVENTS.MAKE_OFFER, (item) => {
-    const { playerId, tileID, price } = item;
+    const { playerId, tileID } = item;
     const buyerName = state.players[playerId].name;
     const tileOwner = state.boardState.ownedProps[item.tileID].id;
     const tileName = tileState[tileID].streetName;
-    const ownerName = state.players[tileOwner].name;
-    if(state.players[tileOwner].type === "random_ai"){
-      if(RandomAI.shouldAcceptOffer(state, tileOwner, playerId, tileID, price, tileState[tileID].price)) {
-        state.players[tileOwner].accountBalance += price;
-        state.players[playerId].accountBalance -= price;
-        state.boardState.ownedProps[tileID].id = playerId;
-        state.boardState.ownedProps[tileID].color = state.players[playerId].color;
-        sendToLog(`${buyerName} has privately bought ${tileName} from ${ownerName} from $${price}M`);
-        io.sockets.to(playerId).emit(EVENTS.OFFER_ACCEPTED, { tileName, price, ownerName });
-        if (state.boardState.openMarket[tileID]) delete state.boardState.openMarket[tileID];
-        checkBalance(true);
-      } else {
-        io.sockets.to(playerId).emit(EVENTS.OFFER_DECLINED, { tileName, price, ownerName });
-      }
-      io.emit(EVENTS.UPDATE, state);
-    } else {
-      io.sockets
+    io.sockets
       .to(tileOwner)
       .emit(EVENTS.OFFER_ON_PROP, { ...item, buyerName, tileName });
-    }
   });
 
   socket.on(EVENTS.DECLINE_OFFER, (offer) => {
