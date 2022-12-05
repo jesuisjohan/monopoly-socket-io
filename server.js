@@ -14,6 +14,7 @@ const NUMBER_OF_PROPS = require('./client/src/constants/props');
 const MOVE_TO_TILE = require('./client/src/constants/moveToTile');
 const RAIL_ROADS = require('./client/src/constants/railRoads');
 const RandomAI = require('./randomAI');
+const SmartAI = require('./smartAI');
 
 const PORT = 8080;
 
@@ -107,6 +108,7 @@ const buyProperty = (playerId, currentTile) => {
     id: playerId,
     color: state.players[playerId].color,
   };
+  console.log(state.boardState.ownedProps)
   sendToLog(`${state.players[playerId].name} bought a property!`);
 }
 
@@ -139,7 +141,10 @@ const nextTurn = () => {
   }
   state.turnInfo = {};
   if (state.players[state.boardState.currentPlayer.id].type === "random_ai") {
-    AIMoveTurn(state, state.boardState.currentPlayer.id);
+    RandomAIMoveTurn(state, state.boardState.currentPlayer.id);
+  }
+  if (state.players[state.boardState.currentPlayer.id].type === "smart_ai") {
+    SmartAIMoveTurn(state, state.boardState.currentPlayer.id);
   }
 };
 
@@ -153,6 +158,9 @@ const checkOwned = (playerId, currentTile, callback) => {
   ) {
     if (state.players[playerId].type !== "human") {
       if (state.players[playerId].type === "random_ai" && RandomAI.shouldBuyProperty(state, playerId, currentTile)) {
+        buyProperty(playerId, currentTile);
+      }
+      if (state.players[playerId].type === "smart_ai" && SmartAI.shouldBuyProperty(state, playerId, currentTile)) {
         buyProperty(playerId, currentTile);
       } 
       nextTurn();
@@ -172,7 +180,162 @@ let colors = Object.values({ ...COLORS });
 
 ////////// AI
 
-const AIMoveTurn = (state, id) => {
+const RandomAIMoveTurn = (state, id) => {
+  let currentTile = state.players[id].currentTile;
+
+  const dice1 = getDice(Math.floor(Math.random() * 5) + 1);
+  const dice2 = getDice(Math.floor(Math.random() * 5) + 1);
+  const num = dice1[1] + dice2[1];
+  state.boardState.diceValue = { dice1, dice2 };
+  sendToLog(`${state.players[id].name} rolled a ${num}`);
+
+  if (currentTile + num < NUMBER_OF_PROPS) {
+    state.players[id].currentTile = currentTile + num;
+  } else {
+    const left = NUMBER_OF_PROPS - currentTile;
+    const more = num - left;
+    state.players[id].currentTile = more;
+    state.players[id].accountBalance += 200;
+    sendToLog(`${state.players[id].name} has passed start and received $200M`);
+  }
+
+  currentTile = state.players[id].currentTile;
+  const AIName = state.players[id].name;
+  switch (tileState[currentTile].tileType) {
+    case TILE_TYPES.NORMAL:
+      checkOwned(id, currentTile, () => {
+        const currentTileOwner = state.boardState.ownedProps[currentTile].id;
+        state.players[id].accountBalance -= tileState[currentTile].rent;
+        state.players[currentTileOwner].accountBalance +=
+          tileState[currentTile].rent;
+        sendToLog(
+          `${AIName} have paid rent $${tileState[currentTile].rent}M to ${
+            state.players[state.boardState.ownedProps[currentTile].id].name
+          }`
+        );
+      });
+      break;
+
+    case TILE_TYPES.EXPENSE:
+      state.players[id].accountBalance -= tileState[currentTile].rent;
+      sendToLog(`${AIName} paid ${tileState[currentTile].rent} in taxes.`);
+      nextTurn();
+      break;
+
+    case TILE_TYPES.RAIL_ROAD:
+      checkOwned(id, currentTile, () => {
+        let ownedRailroads = 0;
+        RAIL_ROADS.forEach((tileNumb) => {
+          if (
+            state.boardState.ownedProps[tileNumb] &&
+            state.boardState.ownedProps[tileNumb].id ===
+              state.boardState.ownedProps[currentTile].id
+          ) {
+            ownedRailroads += 1;
+          }
+        });
+        const priceToPay = 25 * 2 ** (ownedRailroads - 1);
+        state.players[id].accountBalance -= priceToPay;
+        state.players[
+          state.boardState.ownedProps[currentTile].id
+        ].accountBalance += priceToPay;
+        if (ownedRailroads > 1) {
+          sendToLog(
+            `${AIName} have paid rent $${priceToPay}M for ${ownedRailroads} owned railroads to ${
+              state.players[state.boardState.ownedProps[currentTile].id].name
+            }`
+          );
+        } else {
+          sendToLog(
+            `${AIName} have paid rent $${priceToPay}M to ${
+              state.players[state.boardState.ownedProps[currentTile].id].name
+            }`
+          );
+        }
+      });
+      break;
+
+    case TILE_TYPES.GO_JAIL:
+      state.players[id].isJail = true;
+      state.players[id].jailRounds = 0;
+      state.players[id].currentTile = MOVE_TO_TILE.IN_JAIL;
+      sendToLog(`${AIName} was sent to jail for tax fraud.`);
+      nextTurn();
+      break;
+
+    case TILE_TYPES.JAIL:
+      sendToLog(`${AIName}, don't worry! You're just visiting.`);
+      nextTurn();
+      break;
+
+    case TILE_TYPES.COMPANY: {
+      checkOwned(id, currentTile, () => {
+        let priceToPay = 0;
+        if (
+          state.boardState.ownedProps[12] &&
+          state.boardState.ownedProps[28] &&
+          state.boardState.ownedProps[12].id ===
+            state.boardState.ownedProps[currentTile].id &&
+          state.boardState.ownedProps[28].id ===
+            state.boardState.ownedProps[currentTile].id
+        ) {
+          priceToPay = diceResult * 10;
+        } else {
+          priceToPay = diceResult * 4;
+        }
+        state.players[socket.id].accountBalance -= priceToPay;
+        state.players[
+          state.boardState.ownedProps[currentTile].id
+        ].accountBalance += priceToPay;
+        sendToLog(
+          `${playerName} have paid rent $${priceToPay}M to ${
+            state.players[state.boardState.ownedProps[currentTile].id].name
+          }`
+        );
+      });
+      break;
+    }
+
+    case TILE_TYPES.CHANCE: {
+      const randomNumber = Math.floor(Math.random() * chestCards.length);
+      const chestCard = chestCards[randomNumber];
+      state.players[id].accountBalance += chestCard.reward;
+      state.players[id].accountBalance -= chestCard.penalty;
+      if (chestCard.moveToTile > MOVE_TO_TILE.LOTTO)
+        state.players[id].currentTile = chestCard.moveToTile;
+
+      if (chestCard.moveToTile === MOVE_TO_TILE.IN_JAIL) {
+        state.players[id].isJail = true;
+      }
+      sendToLog(`${AIName}: ${chestCard.message}`);
+      nextTurn();
+      break;
+    }
+
+    case TILE_TYPES.CHEST: {
+      const randomNumber = Math.floor(Math.random() * chestCards.length);
+      const chestCard = chestCards[randomNumber];
+      state.players[id].accountBalance += chestCard.reward;
+      state.players[id].accountBalance -= chestCard.penalty;
+      if (chestCard.moveToTile > MOVE_TO_TILE.LOTTO)
+        state.players[id].currentTile = chestCard.moveToTile;
+
+      if (chestCard.moveToTile === MOVE_TO_TILE.IN_JAIL) {
+        state.players[id].isJail = true;
+      }
+      sendToLog(`${AIName}: ${chestCard.message}`);
+      nextTurn();
+      break;
+    }
+
+    default: {
+      nextTurn();
+      break;
+    }
+  }
+};
+
+const SmartAIMoveTurn = (state, id) => {
   let currentTile = state.players[id].currentTile;
 
   const marketPlaceList = Object.keys(state.boardState.openMarket);
@@ -373,14 +536,14 @@ io.on(EVENTS.CONNECTION, (socket) => {
   });
 
   // when an AI join
-  socket.on(EVENTS.NEW_AI, () => {
+  socket.on(EVENTS.NEW_AI, (type = "random_ai") => {
     const id = "AI" + Math.floor(Math.random() * 10000);
     const Color = colors.pop();
     if (!state.boardState.gameStarted && Color) {
       state.boardState.numberOfAI += 1;
       state.players[id] = {
         name: "Mr." + Color,
-        type: "random_ai",
+        type: type,
         currentTile: 0,
         color: Color,
         accountBalance: 1500,
@@ -692,6 +855,20 @@ io.on(EVENTS.CONNECTION, (socket) => {
     const ownerName = state.players[tileOwner].name;
     if(state.players[tileOwner].type === "random_ai"){
       if(RandomAI.shouldAcceptOffer(state, tileOwner, playerId, tileID, price, tileState[tileID].price)) {
+        state.players[tileOwner].accountBalance += price;
+        state.players[playerId].accountBalance -= price;
+        state.boardState.ownedProps[tileID].id = playerId;
+        state.boardState.ownedProps[tileID].color = state.players[playerId].color;
+        sendToLog(`${buyerName} has privately bought ${tileName} from ${ownerName} from $${price}M`);
+        io.sockets.to(playerId).emit(EVENTS.OFFER_ACCEPTED, { tileName, price, ownerName });
+        if (state.boardState.openMarket[tileID]) delete state.boardState.openMarket[tileID];
+        checkBalance(true);
+      } else {
+        io.sockets.to(playerId).emit(EVENTS.OFFER_DECLINED, { tileName, price, ownerName });
+      }
+      io.emit(EVENTS.UPDATE, state);
+    } else if(state.players[tileOwner].type === "smart_ai"){
+      if(SmartAI.shouldAcceptOffer(state, tileOwner, playerId, tileID, price, tileState[tileID].price)) {
         state.players[tileOwner].accountBalance += price;
         state.players[playerId].accountBalance -= price;
         state.boardState.ownedProps[tileID].id = playerId;

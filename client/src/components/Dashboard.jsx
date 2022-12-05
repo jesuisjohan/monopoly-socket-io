@@ -231,8 +231,11 @@ export default function Dashboard() {
                   <button className="button__start-game" type="button" onClick={() => socketFunctions.startGame()}>
                     Start game
                   </button>
-                  <button className="button__start-game" type="button" onClick={() => socketFunctions.newAI()}>
-                    Add AI player
+                  <button className="button__start-game" type="button" onClick={() => socketFunctions.newAI("random_ai")}>
+                    Add Random AI player
+                  </button>
+                  <button className="button__start-game" type="button" onClick={() => socketFunctions.newAI("smart_ai")}>
+                    Add Smart AI player
                   </button>
                 </div>
                 
